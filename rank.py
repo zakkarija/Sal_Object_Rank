@@ -9,10 +9,10 @@ import mask_rcnn as rcnn
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--image", required=True,
+ap.add_argument("-i", "--image", required=False, default="images\\3_hats.jpeg",
                 help="path to input image")
-ap.add_argument("-r", "--rank", required=False, default=-1,
-                help="which saliency ranked segment to show")
+ap.add_argument("-r", "--rank", required=False, default=0,
+                help="which saliency object rank to show")
 args = vars(ap.parse_args())
 
 IMAGE_DIR = args["image"]
@@ -26,15 +26,16 @@ img = cv2.imread(IMAGE_DIR)
 
 # Get List of ROI of Mask R-CNN
 results = rcnn.detect_objects(IMAGE_DIR)
+print("results", results)
 rois = results['rois']
+ids = results['class_ids']
 
 # Show detected Objects
-for roi in rois:
-    obj = img[roi[0]:roi[2], roi[1]:roi[3]]
-    cv2.imshow("Object", obj)
-    cv2.waitKey()
+# for roi in rois:
+#     obj = img[roi[0]:roi[2], roi[1]:roi[3]]
+#     cv2.imshow("Object", obj)
+#     cv2.waitKey()
 
-print("results\n", results)
 
 s1 = cv2.imread(IMAGE_DIR)
 cv2.imshow("Input Image", s1)
