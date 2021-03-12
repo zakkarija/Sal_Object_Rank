@@ -1,3 +1,5 @@
+import itertools
+
 import cv2
 import numpy as np
 import math
@@ -11,6 +13,7 @@ import pandas as pd
 
 # Import Akisato Kimura <akisato@ieee.org> implementation of Itti's Saliency Map Generator
 # Original Source: https://github.com/akisatok/pySaliencyMap
+import matcher
 import pySaliencyMap
 
 # -------------------------------------------------
@@ -328,6 +331,26 @@ def getClassName(salient_object):
     return class_names[salient_object[1][1]]
 
 
+def duplicateObjects(img):
+    for objA, objB in itertools.combinations(objects, 2):
+        if objA[0] != objB[0]:
+            roi = objA[1][0]
+            roi2 = objB[1][0]
+            match1 = img[roi[0]:roi[2], roi[1]:roi[3]]
+            match2 = img[roi2[0]:roi2[2], roi2[1]:roi2[3]]
+            
+            # if matcher.template_matcher(match1, match2):
+            if matcher.hash_matcher(match1, match2):
+                print("Object Matches: ", getClassName(getObjectWithIndex(objA[0], img)),
+                      " with ", getClassName(getObjectWithIndex(objA[1], img)))
+                cv2.imshow("Object Matches1", match1)
+                cv2.imshow("Object Matches2", match2)
+                cv2.waitKey()
+                cv2.destroyAllWindows()
+            else:
+                print("Not Match found between ", objA[0], " and ", objB[0])
+
+
 def generateSaRa(img, texSegments, results, rank_to_show):
     # Generate Gaussian Weights
     gaussian_kernel_array = makeGaussian(segDim)
@@ -361,13 +384,16 @@ def generateSaRa(img, texSegments, results, rank_to_show):
     # print("sortedObjEntropies", sortedObjEntropies)
     # print("rank_to_show", rank_to_show)
 
+    duplicateObjects(img)
+
     if rank_to_show == -1:
         salient_object = getObjectWithIndex(indexObj, img)
     else:
         indexObj, salient_object = getObjectWithRank(rank_to_show, img, sortedObjEntropies)
 
     salient_object_roi = salient_object[1][0]
-    salientObjectImg = img[salient_object_roi[0]:salient_object_roi[2], salient_object_roi[1]: salient_object_roi[3]]
+    salientObjectImg = img[salient_object_roi[0]:salient_object_roi[2],
+                       salient_object_roi[1]: salient_object_roi[3]]
 
     object_class = getClassName(salient_object)
     print("mostSalientObject is ", object_class)
@@ -417,10 +443,10 @@ def getObjectWithRank(rank, img, objEntropies):
             return obj[0], getObjectWithIndex(obj[0], img)
         rank_iter += 1
 
+    # -------------------------------------------------
+    # Evaluation Functions
+    # -------------------------------------------------
 
-# -------------------------------------------------
-# Evaluation Functions
-# -------------------------------------------------
 
 def returnSARA(inputImg, rank_to_show, results):
     texSegments = generateSegments(returnIttiSaliency(inputImg), 9)
