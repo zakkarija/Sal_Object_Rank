@@ -1,6 +1,6 @@
 import argparse
 import cv2
-import saraRC_mrcnn as rs
+import SR as psr
 import mask_rcnn as rcnn
 
 # -------------------------------------------------
@@ -26,16 +26,20 @@ img = cv2.imread(IMAGE_DIR)
 
 # Get List of ROI of Mask R-CNN
 results = rcnn.detect_objects(IMAGE_DIR)
-print("results", results)
-rois = results['rois']
-ids = results['class_ids']
+# print("results", results)
+# rois = results['rois']
+# ids = results['class_ids']
 
-cv2.imshow("Input Image", img)
+# # Show detected Objects
+# for roi in rois:
+#     obj = img[roi[0]:roi[2], roi[1]:roi[3]]
+#     cv2.imshow("Object", obj)
+#     cv2.waitKey()
 
+s1 = cv2.imread(IMAGE_DIR)
+# cv2.imshow("Input Image", s1)
+# cv2.waitKey(0)
 
-outS1, saraListS1 = rs.returnSARA(img, RANK_TO_SHOW, results)
-cv2.imshow("SaRa Output for S1", outS1)
-cv2.imwrite("out.jpg", outS1)
-print(saraListS1)
+objectRanked = psr.generateObjects(img, RANK_TO_SHOW, results)
 
 cv2.waitKey()

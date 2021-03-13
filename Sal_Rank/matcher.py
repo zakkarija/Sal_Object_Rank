@@ -9,8 +9,8 @@ def hash_matcher(c1, c2):
     # img1 = cv2.cvtColor(c1, cv2.COLOR_BGR2RGB)
     # img2 = cv2.cvtColor(c2, cv2.COLOR_BGR2RGB)
 
-    hash0 = imagehash.average_hash(Image.fromarray(img1))
-    hash1 = imagehash.average_hash(Image.fromarray(img2))
+    hash0 = imagehash.average_hash(Image.fromarray(c1))
+    hash1 = imagehash.average_hash(Image.fromarray(c2))
     cutoff = 10
 
     if hash0 - hash1 < cutoff:
