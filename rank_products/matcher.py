@@ -5,13 +5,53 @@ import imagehash
 import numpy as np
 
 
+def feature_match(c1, c2):
+    c1 = cv2.cvtColor(c1, cv2.COLOR_BGR2GRAY)
+    c2 = cv2.cvtColor(c2, cv2.COLOR_BGR2GRAY)
+    # cv2.imshow("c1", c1)
+    # cv2.imshow("c2", c2)
+    MIN_MATCH_COUNT = 10
+    # Initiate SIFT detector
+    sift = cv2.SIFT_create()
+    # find the keypoints and descriptors with SIFT
+    kp1, des1 = sift.detectAndCompute(c1, None)
+    kp2, des2 = sift.detectAndCompute(c2, None)
+    FLANN_INDEX_KDTREE = 1
+    index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
+    search_params = dict(checks=50)
+    flann = cv2.FlannBasedMatcher(index_params, search_params)
+    matches = flann.knnMatch(des1, des2, k=2)
+    # store all the good matches as per Lowe's ratio test.
+    good = []
+    for m, n in matches:
+        if m.distance < 0.7 * n.distance:
+            good.append(m)
+
+    if len(good) > MIN_MATCH_COUNT:
+        src_pts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
+        dst_pts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
+        M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+        matchesMask = mask.ravel().tolist()
+        # h, w, d = img1.shape
+        h, w = c1.shape
+        pts = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]).reshape(-1, 1, 2)
+        dst = cv2.perspectiveTransform(pts, M)
+        c2 = cv2.polylines(c2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
+        print("Matches")
+        return True
+    else:
+        print("Not enough matches are found - {}/{}".format(len(good), MIN_MATCH_COUNT))
+        # matchesMask = None
+        return False
+
+
 def hash_matcher(c1, c2):
     # img1 = cv2.cvtColor(c1, cv2.COLOR_BGR2RGB)
     # img2 = cv2.cvtColor(c2, cv2.COLOR_BGR2RGB)
 
     hash0 = imagehash.average_hash(Image.fromarray(c1))
     hash1 = imagehash.average_hash(Image.fromarray(c2))
-    cutoff = 10
+    cutoff = 5
 
     if hash0 - hash1 < cutoff:
         # print("Similar")
@@ -57,6 +97,8 @@ def orb_matcher(img1, img2):
 
 
 def template_matcher(im1, im2):
+    cv2.imshow("im1", im1)
+    cv2.imshow("im2", im2)
     # There are 6 comparison methods to choose from:
     # TM_CCOEFF, TM_CCOEFF_NORMED, TM_CCORR, TM_CCORR_NORMED, TM_SQDIFF, TM_SQDIFF_NORMED
     # You can see the differences at a glance here:
@@ -74,7 +116,7 @@ def template_matcher(im1, im2):
     print(locations)
 
     if locations:
-        print('Found Object')
+        # print('Found Object')
         needle_w = im2.shape[1]
         needle_h = im2.shape[0]
         line_color = (0, 255, 0)
@@ -93,7 +135,7 @@ def template_matcher(im1, im2):
         # cv2.imwrite('result.jpg', im1)
         return True
     else:
-        print('Object not found.')
+        # print('Object not found.')
         return False
 
 # hash_matcher(img1, img2)

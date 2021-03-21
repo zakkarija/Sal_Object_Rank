@@ -76,7 +76,7 @@ class CocoConfig(Config):
     # Give the configuration a recognizable name
     NAME = "coco"
 
-    # We use a GPU with 12GB memory, which can fit two images.
+    # We use a GPU with 12GB memory, which can fit two eval_images.
     # Adjust down if you use a smaller GPU.
     IMAGES_PER_GPU = 2
 
@@ -98,11 +98,11 @@ class CocoDataset(utils.Dataset):
         dataset_dir: The root directory of the COCO dataset.
         subset: What to load (train, val, minival, valminusminival)
         year: What dataset year to load (2014, 2017) as a string, not an integer
-        class_ids: If provided, only loads images that have the given classes.
+        class_ids: If provided, only loads eval_images that have the given classes.
         class_map: TODO: Not implemented yet. Supports maping classes from
             different datasets to the same class ID.
         return_coco: If True, returns the COCO object.
-        auto_download: Automatically download and unzip MS-COCO images and annotations
+        auto_download: Automatically download and unzip MS-COCO eval_images and annotations
         """
 
         if auto_download is True:
@@ -118,7 +118,7 @@ class CocoDataset(utils.Dataset):
             # All classes
             class_ids = sorted(coco.getCatIds())
 
-        # All images or a subset?
+        # All eval_images or a subset?
         if class_ids:
             image_ids = []
             for id in class_ids:
@@ -126,14 +126,14 @@ class CocoDataset(utils.Dataset):
             # Remove duplicates
             image_ids = list(set(image_ids))
         else:
-            # All images
+            # All eval_images
             image_ids = list(coco.imgs.keys())
 
         # Add classes
         for i in class_ids:
             self.add_class("coco", i, coco.loadCats(i)[0]["name"])
 
-        # Add images
+        # Add eval_images
         for i in image_ids:
             self.add_image(
                 "coco", image_id=i,
@@ -170,10 +170,10 @@ class CocoDataset(utils.Dataset):
         if not os.path.exists(dataDir):
             os.makedirs(dataDir)
 
-        # Download images if not available locally
+        # Download eval_images if not available locally
         if not os.path.exists(imgDir):
             os.makedirs(imgDir)
-            print("Downloading images to " + imgZipFile + " ...")
+            print("Downloading eval_images to " + imgZipFile + " ...")
             with urllib.request.urlopen(imgURL) as resp, open(imgZipFile, 'wb') as out:
                 shutil.copyfileobj(resp, out)
             print("... done downloading.")
@@ -181,7 +181,7 @@ class CocoDataset(utils.Dataset):
             with zipfile.ZipFile(imgZipFile, "r") as zip_ref:
                 zip_ref.extractall(dataDir)
             print("... done unzipping")
-        print("Will use images in " + imgDir)
+        print("Will use eval_images in " + imgDir)
 
         # Setup annotations data paths
         annDir = "{}/annotations".format(dataDir)
@@ -343,9 +343,9 @@ def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=Non
     """Runs official COCO evaluation.
     dataset: A Dataset object with valiadtion data
     eval_type: "bbox" or "segm" for bounding box or segmentation evaluation
-    limit: if not 0, it's the number of images to use for evaluation
+    limit: if not 0, it's the number of eval_images to use for evaluation
     """
-    # Pick COCO images from the dataset
+    # Pick COCO eval_images from the dataset
     image_ids = image_ids or dataset.image_ids
 
     # Limit to a subset
@@ -527,7 +527,7 @@ if __name__ == '__main__':
         val_type = "val" if args.year in '2017' else "minival"
         coco = dataset_val.load_coco(args.dataset, val_type, year=args.year, return_coco=True, auto_download=args.download)
         dataset_val.prepare()
-        print("Running COCO evaluation on {} images.".format(args.limit))
+        print("Running COCO evaluation on {} eval_images.".format(args.limit))
         evaluate_coco(model, dataset_val, coco, "bbox", limit=int(args.limit))
     else:
         print("'{}' is not recognized. "

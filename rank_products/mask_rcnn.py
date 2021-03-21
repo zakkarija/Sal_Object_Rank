@@ -79,5 +79,9 @@ def detect_objects(image_path):
     return r
 
 
+def getClassNameByObject(salient_object):
+    return class_names[salient_object[1][1]]
+
+
 def getClassNameByIndex(index):
     return class_names[index]

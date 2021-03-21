@@ -9,7 +9,7 @@ import mask_rcnn as rcnn
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--image", required=False, default="images\\3_hats.jpeg",
+ap.add_argument("-i", "--image", required=False, default="eval_images\\3_hats.jpeg",
                 help="path to input image")
 ap.add_argument("-r", "--rank", required=False, default=0,
                 help="which saliency object rank to show")

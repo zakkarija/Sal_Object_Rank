@@ -97,6 +97,7 @@ def calculatePixelFrequency(img):
 
 
 def calculateEntropy(img, w, dw):
+    print("img", img)
     flt = img.flatten()
 
     c = flt.shape[0]
@@ -311,14 +312,14 @@ def returnSARA(inputImg, rank_to_show):
 
 
 def mse(imageA, imageB):
-    # the 'Mean Squared Error' between the two images is the
-    # sum of the squared difference between the two images;
-    # NOTE: the two images must have the same dimension
+    # the 'Mean Squared Error' between the two eval_images is the
+    # sum of the squared difference between the two eval_images;
+    # NOTE: the two eval_images must have the same dimension
     err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
     err /= float(imageA.shape[0] * imageA.shape[1])
 
     # return the MSE, the lower the error, the more "similar"
-    # the two images are
+    # the two eval_images are
     return err
 
 
@@ -340,7 +341,7 @@ def mse(imageA, imageB):
 # cv2.imshow("Input Image", s1)
 # # print(texPath1)
 #
-# # texSegments1 = generateSegments(returnIttiSaliency(s1), 9)
+# texSegments1 = generateSegments(returnIttiSaliency(s1), 9)
 #
 # print("Generating SaRa")
 #

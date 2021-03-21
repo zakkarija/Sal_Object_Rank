@@ -82,6 +82,7 @@ def generateSegments(img, segCount, depth=None):
             segments.append(tempSegment)
             index += 1
 
+    print("segments", segments)
     return segments
 
 
