@@ -1,9 +1,5 @@
 import cv2
 import numpy as np
-import math
-# import scipy.stats as st
-import mask_rcnn as rcnn
-import SR as sr
 import matplotlib.pyplot as plt
 import operator
 import time
@@ -11,7 +7,9 @@ import csv
 import pandas as pd
 from IPython.display import display, HTML
 
-objectScores = []
+import mask_rcnn as rcnn
+import SR as sr
+
 segmentsScores = []
 segmentsCoords = []
 sortedSegScores = []
@@ -21,15 +19,15 @@ sortedSegScoresOut = []
 def loadImages(dataset):
     img, depthImg, salImg, name, image_path = 0, 0, 0, 0, 0
     if dataset == 1:
-        img = cv2.imread('../clickEval/click_eval_COTS/eval_images/books/3_colour.jpeg')
-        depthImg = cv2.imread('../clickEval/click_eval_COTS/eval_images/books/3_depth8.png')
-        salImg = cv2.imread('../clickEval/click_eval_COTS/eval_images/books/sal.jpg')
+        img = cv2.imread('eval/eval_images/books/3_colour.jpeg')
+        depthImg = cv2.imread('eval/eval_images/books/3_depth8.png')
+        salImg = cv2.imread('eval/eval_images/books/sal.jpg')
         name = "Books"
         image_path = "/academic_book_no/3_colour.jpeg"
     elif dataset == 2:
-        img = cv2.imread('eval_images/shoes/3_colour.jpeg')
-        depthImg = cv2.imread('eval_images/shoes/3_depth8.png')
-        salImg = cv2.imread('eval_images/shoes/sal.jpg')
+        img = cv2.imread('eval/eval_images/shoes/3_colour.jpeg')
+        depthImg = cv2.imread('eval/eval_images/shoes/3_depth8.png')
+        salImg = cv2.imread('eval/eval_images/shoes/sal.jpg')
         name = "Footwear"
         image_path = "/footwear_no/3_colour.jpeg"
     return img, depthImg, salImg, name, image_path
@@ -90,7 +88,7 @@ def zerolistmaker(n):
 
 
 def rankProductsFromCSV(csvName, task, img, products):
-    df = pd.read_csv('click_movement.csv')
+    df = pd.read_csv('eval/click_movement.csv')
 
     print("id", id)
     image = df['image'] == id
@@ -135,10 +133,14 @@ def rankProductsFromCSV(csvName, task, img, products):
     return new_products
 
 
-imgT, imgD, imgS, name, id = loadImages(2)
+# imgT, imgD, imgS, name, id = loadImages(2)
+cots_path = '/footwear_no/3_colour.jpeg'
+imgT = cv2.imread('eval/cots_2' + cots_path)
+id = cots_path
 
-objects = sr.returnObjects(imgT, -1, rcnn.detect_objects("eval_images/shoes/3_colour.jpeg"))
+objects = sr.returnObjects(imgT, -1, rcnn.detect_objects('eval/cots_2' + cots_path), True)
 
+objectScores = []
 objectScores = zerolistmaker(len(objects))
 
 objects.sort(key=operator.itemgetter(0))

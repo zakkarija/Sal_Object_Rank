@@ -59,6 +59,31 @@ def returnIttiSaliency(img):
 # Saliency Ranking
 # -------------------------------------------------
 
+segmentsCoords = []
+segments = []
+
+
+def generateSegments(img, segCount, depth=None):
+    segments = []
+    segmentCount = segCount
+    index = 0
+
+    wInterval = int(img.shape[1] / segmentCount)
+    hInterval = int(img.shape[0] / segmentCount)
+
+    for i in range(segmentCount):
+        for j in range(segmentCount):
+            # Note: img[TopRow:BottomRow, FirstColumn:LastColumn]
+            tempSegment = img[int(hInterval * i):int(hInterval * (i + 1)), int(wInterval * j):int(wInterval * (j + 1))]
+            # cv2.imshow("Crop" + str(i) + str(j), tempSegment)
+            # coordTup = (index, x1, y1, x2, y2)
+            coordTup = (
+                index, int(wInterval * j), int(hInterval * i), int(wInterval * (j + 1)), int(hInterval * (i + 1)))
+            segmentsCoords.append(coordTup)
+            segments.append(tempSegment)
+            index += 1
+
+
 def calculatePixelFrequency(img):
     flt = img.flatten()
     unique, counts = np.unique(flt, return_counts=True)
@@ -67,10 +92,59 @@ def calculatePixelFrequency(img):
     return pixelsFrequency
 
 
-def calculateEntropy(img, w):
-    # cv2.imshow("entropy", img)
-    print("w", w)
-    cv2.waitKey(0)
+def point_in_roi(x, y, object_roi):
+    # print(object_roi[0], "<", x, "<", object_roi[2])
+    # print(object_roi[1], "<", y, "<", object_roi[3])
+    return object_roi[0] <= y <= object_roi[2] and object_roi[1] <= x <= object_roi[3]
+
+
+def show_coords(img, x1, y1, x2, y2, label):
+    roi = img[x1:x2, y1:y2]
+    # print("roi", roi)
+    cv2.imshow(label, roi)
+
+
+def intersection(a, b, img):
+    # print("b", b)
+    # print("a", a)
+    # show_coords(img, a[0], a[1], a[2], a[3], "a")
+    # show_coords(img, b[0], b[1], b[2], b[3], "b")
+
+    x = max(a[0], b[0])
+    y = max(a[1], b[1])
+    w = min(a[2], b[2]) - x
+    h = min(a[3], b[3]) - y
+
+    if w < 0 or h < 0: return tuple((0, 0, 0, 0))
+    return tuple((x, y, w, h))
+
+
+def getGaussianWeight(coords, kernel, img):
+    gaussian_weights = []
+    i = 0
+    for seg in kernel:
+
+        # print("seg", seg)
+        # print("coords", coords)
+        # print("segmentsCoords", segmentsCoords)
+
+        # seg_coords(index,y1,x1,y2,x2)
+        seg_coords = segmentsCoords[i]
+        a = (coords[0], coords[1], coords[2], coords[3])
+        b = (seg_coords[2], seg_coords[1], seg_coords[4], seg_coords[3])
+        ans = intersection(a, b, img)
+
+        if ans != (0, 0, 0, 0):
+            gaussian_weights.append(float(seg))
+            # print("Intersection", ans, "i:", i, "seg:", seg)
+        # else:
+        #     print("Box not in", i)
+        # cv2.waitKey(0)
+        i += 1
+    return sum(gaussian_weights) / len(gaussian_weights)
+
+
+def calculateEntropy(img, w, dw):
     flt = img.flatten()
 
     # c = flt.shape[0]
@@ -93,12 +167,15 @@ def calculateEntropy(img, w):
         # probs[px] = tprob
         entropy += entropy + (tprob * math.log(2, (1 / tprob)))
 
-        entropy = entropy * wt * 1
-        # No Gaussian or depth
-        entropy = entropy * 1 * 1
+        entropy = entropy * wt * dw
 
+    print("Entropy:", entropy, " Gaussain weight:", wt)
     return entropy
 
+
+# -------------------------------------------------
+# Product Ranking
+# -------------------------------------------------
 
 def makeGaussian(size, fwhm=10, center=None):
     # https://gist.github.com/andrewgiessel/4635563
@@ -120,25 +197,34 @@ def makeGaussian(size, fwhm=10, center=None):
     return np.exp(-4 * np.log(2) * ((x - x0) ** 2 + (y - y0) ** 2) / fwhm ** 2)
 
 
-# -------------------------------------------------
-# Product Ranking
-# -------------------------------------------------
-
 # def findMostSalientObject(objs, kernel, dws):
-def rankProductsWithSaliency(objs, kernel, sal_map):
+
+
+def rankProductsWithSaliency(objs, kernel, sal_map, img):
     # objs is array of obj (roi, class_id)
     maxEntropy = 0
     index = 0
     i = 0
     for obj in objs:
-        # print("roi", roi, kernel[i], dws)
+
         coords = obj[0]
+        # coords[0] is x1 or y1??
         roi = sal_map[coords[0]:coords[2], coords[1]:coords[3]]
+
         # print("roi", roi)
         # cv2.imshow("roi", roi)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
-        entropy = calculateEntropy(roi, kernel[i])
+
+        if np.all((kernel == 0)):
+            # calculateEntropy(sal_segment, gaussian weight, depth weight)
+            # gaussian weight is 0.1 since it will be multiplied by 10
+            entropy = calculateEntropy(roi, 0.1, 1)
+        else:
+            gaussian_weight = getGaussianWeight(coords, kernel, img)
+            print("gaussian weight: ", gaussian_weight)
+            entropy = calculateEntropy(roi, gaussian_weight, 1)
+
         # objectEntropies is list of  (index, entropy)
         Tup = (i, entropy)
         objectEntropies.append(Tup)
@@ -149,6 +235,7 @@ def rankProductsWithSaliency(objs, kernel, sal_map):
             maxEntropy = entropy
             index = i
         i += 1
+        print("_________________________________")
     return maxEntropy, index
 
 
@@ -224,11 +311,9 @@ def show_ranked_objects(rankedObjs, img):
     cv2.destroyAllWindows()
 
 
-def generateObjects(img, sal_map, rank_to_show, results):
-    # Generate Gaussian Weights
+def generateObjects(img, sal_map, rank_to_show, results, gaussian):
     gaussian_kernel_array = makeGaussian(9)
     gaussian1d = gaussian_kernel_array.ravel()
-    # print("gaussian1d", gaussian1d)
 
     # Get rois and labels
     objs = []
@@ -240,7 +325,11 @@ def generateObjects(img, sal_map, rank_to_show, results):
         i += 1
 
     # Generate Object Saliency Ranking
-    maxObj, indexObj = rankProductsWithSaliency(objs, gaussian1d, sal_map)
+    if not gaussian:
+        maxObj, indexObj = rankProductsWithSaliency(objs, np.zeros(1), sal_map, img)
+    else:
+        maxObj, indexObj = rankProductsWithSaliency(objs, gaussian1d, sal_map, img)
+
     dictObjEntropies = dict(objectEntropies)
     sortedObjEntropies = sorted(dictObjEntropies.items(), key=operator.itemgetter(1), reverse=True)
 
@@ -268,15 +357,15 @@ def generateObjects(img, sal_map, rank_to_show, results):
         final_object = (obj_entropies[0], getObjectWithIndex(obj_entropies[0]), obj_entropies[1])
         final_objects.append(final_object)
 
-    # show_ranked_objects(final_objects, img)
+    show_ranked_objects(final_objects, img)
     return final_objects
 
 
-def returnObjects(input_img, rank_to_show, results):
+def returnObjects(input_img, rank_to_show, results, gaussian):
+    generateSegments(input_img, 9)
     sal_map = returnIttiSaliency(input_img)
     # cv2.imshow("sal_map", sal_map)
     # cv2.waitKey(0)
     print("\n\n\n\nComputed Saliency Map")
-    print("Ranking Products")
-    rankedObjs = generateObjects(input_img, sal_map, rank_to_show, results)
+    rankedObjs = generateObjects(input_img, sal_map, rank_to_show, results, gaussian)
     return rankedObjs

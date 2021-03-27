@@ -10,15 +10,21 @@ import mask_rcnn as rcnn
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--image", required=False, default="eval_images\\3_hats.jpeg",
+ap.add_argument("-i", "--image", required=False, default="images\\3_books.jpeg",
                 help="path to input image")
 ap.add_argument("-r", "--rank", required=False, default=-1,
-                help="which saliency object rank to show")
+                help="which saliency object rank to show"),
+ap.add_argument("-g", "--gaussian", required=False, default="True",
+                help="factor in gaussian map on saliency score")
 args = vars(ap.parse_args())
 
 IMAGE_DIR = args["image"]
 RANK_TO_SHOW = args["rank"]
 
+if args["gaussian"] == "False":
+    GAUSSIAN = False
+else:
+    GAUSSIAN = True
 # -------------------------------------------------
 # Start Main Code
 # -------------------------------------------------
@@ -44,7 +50,7 @@ ids = results['class_ids']
 #     cv2.waitKey()
 #     cv2.destroyAllWindows()
 
-objectRanked = psr.returnObjects(img, RANK_TO_SHOW, results)
+objectRanked = psr.returnObjects(img, RANK_TO_SHOW, results, GAUSSIAN)
 
 i = 0
 for ranked_object in objectRanked:
