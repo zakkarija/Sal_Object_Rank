@@ -169,7 +169,7 @@ def calculateEntropy(img, w, dw):
 
         entropy = entropy * wt * dw
 
-    print("Entropy:", entropy, " Gaussain weight:", wt)
+    # print("Saliency Score:", entropy, " Gaussian weight:", wt)
     return entropy
 
 
@@ -222,7 +222,6 @@ def rankProductsWithSaliency(objs, kernel, sal_map, img):
             entropy = calculateEntropy(roi, 0.1, 1)
         else:
             gaussian_weight = getGaussianWeight(coords, kernel, img)
-            print("gaussian weight: ", gaussian_weight)
             entropy = calculateEntropy(roi, gaussian_weight, 1)
 
         # objectEntropies is list of  (index, entropy)
@@ -241,6 +240,13 @@ def rankProductsWithSaliency(objs, kernel, sal_map, img):
 
 def getClassName(salient_object):
     return class_names[salient_object[1][1]]
+
+
+def getRoiWithIndex(index, img):
+    obj = getObjectWithIndex(index)
+    object_coords = obj[1][0]
+    return img[object_coords[0]:object_coords[2],
+           object_coords[1]: object_coords[3]]
 
 
 def getObjectWithIndex(index):
@@ -333,8 +339,8 @@ def generateObjects(img, sal_map, rank_to_show, results, gaussian):
     dictObjEntropies = dict(objectEntropies)
     sortedObjEntropies = sorted(dictObjEntropies.items(), key=operator.itemgetter(1), reverse=True)
 
-    print("\nChecking for duplicate objects...\n")
-    duplicateObjects(img)
+    # print("\nChecking for duplicate objects...\n")
+    # duplicateObjects(img)
 
     if rank_to_show == -1:
         salient_object = getObjectWithIndex(indexObj)
@@ -345,19 +351,21 @@ def generateObjects(img, sal_map, rank_to_show, results, gaussian):
     salientObjectImg = img[salient_object_roi[0]:salient_object_roi[2],
                        salient_object_roi[1]: salient_object_roi[3]]
 
-    object_class = getClassName(salient_object)
-    print("\n-----------------------------------------\n")
-    print("The most salient product is ", object_class)
+    # object_class = getClassName(salient_object)
+    # print("\n-----------------------------------------\n")
+    # print("The most salient product is ", object_class)
     # cv2.imshow("Most Salient", salientObjectImg)
 
     # Create and return List of final objects
-    # (index, obj, entropy)  -> obj is (roi, class_id), ranked by entropies
+    # (index, obj, entropy, rank)  -> obj is (roi, class_id), ranked by entropies
     final_objects = []
+    i = 0
     for obj_entropies in sortedObjEntropies:
-        final_object = (obj_entropies[0], getObjectWithIndex(obj_entropies[0]), obj_entropies[1])
+        final_object = (obj_entropies[0], getObjectWithIndex(obj_entropies[0]), obj_entropies[1], i)
         final_objects.append(final_object)
+        i += 1
 
-    show_ranked_objects(final_objects, img)
+    # show_ranked_objects(final_objects, img)
     return final_objects
 
 

@@ -55,7 +55,7 @@ objectRanked = psr.returnObjects(img, RANK_TO_SHOW, results, GAUSSIAN)
 i = 0
 for ranked_object in objectRanked:
     object_class = rcnn.getClassNameByObject(ranked_object[1])
-    print("Rank ", i, ": ", object_class, " with a saliency score ", ranked_object[2])
+    print("Rank ", ranked_object[3], ": ", object_class, " with a saliency score ", ranked_object[2])
     i += 1
 
 print("Time took: ", time.process_time() - start)
