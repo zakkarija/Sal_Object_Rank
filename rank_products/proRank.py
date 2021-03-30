@@ -1,12 +1,25 @@
 import argparse
 import cv2
 import SR as psr
+import SR_mask as psrm
 import time
 import mask_rcnn as rcnn
+
 
 # -------------------------------------------------
 # Parse Arguments
 # -------------------------------------------------
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -14,17 +27,18 @@ ap.add_argument("-i", "--image", required=False, default="images\\3_books.jpeg",
                 help="path to input image")
 ap.add_argument("-r", "--rank", required=False, default=-1,
                 help="which saliency object rank to show"),
-ap.add_argument("-g", "--gaussian", required=False, default="True",
+ap.add_argument("-g", "--gaussian", type=str2bool, required=False, default="True",
+                help="factor in gaussian map on saliency score")
+ap.add_argument("-m", "--mask", type=str2bool, required=False, default="True",
                 help="factor in gaussian map on saliency score")
 args = vars(ap.parse_args())
 
+# Convert arguments to variables
 IMAGE_DIR = args["image"]
 RANK_TO_SHOW = args["rank"]
+psrm.GAUSSIAN = args["gaussian"]
+psrm.MASK = args["mask"]
 
-if args["gaussian"] == "False":
-    GAUSSIAN = False
-else:
-    GAUSSIAN = True
 # -------------------------------------------------
 # Start Main Code
 # -------------------------------------------------
@@ -50,7 +64,13 @@ ids = results['class_ids']
 #     cv2.waitKey()
 #     cv2.destroyAllWindows()
 
-objectRanked = psr.returnObjects(img, RANK_TO_SHOW, results, GAUSSIAN)
+print("Showing Rank:\t", RANK_TO_SHOW)
+print("Image:\t", IMAGE_DIR)
+print("Gaussian:\t", psrm.GAUSSIAN)
+print("Mask:\t", psrm.MASK)
+
+# objectRanked = psr.returnObjects(img, RANK_TO_SHOW, results, GAUSSIAN)
+objectRanked = psrm.returnObjects(img, RANK_TO_SHOW, results)
 
 i = 0
 for ranked_object in objectRanked:

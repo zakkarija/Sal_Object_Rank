@@ -90,7 +90,7 @@ def zerolistmaker(n):
 def rankProductsFromCSV(csvName, task, img, products):
     df = pd.read_csv('eval/click_movement.csv')
 
-    print("id", id)
+    # print("id", id)
     image = df['image'] == id
     df = df[image]
 
@@ -127,14 +127,14 @@ def rankProductsFromCSV(csvName, task, img, products):
 
     new_products = []
     for product in objects:
-        new_product = (product[0], product[1], product[2], objectScores[product[0]])
+        new_product = (product[0], product[1], product[2], objectScores[product[0]], product[3])
         new_products.append(new_product)
 
     return new_products
 
 
 # imgT, imgD, imgS, name, id = loadImages(2)
-cots_path = '/footwear_no/3_colour.jpeg'
+cots_path = '/souvenirs_no/3_colour.jpeg'
 imgT = cv2.imread('eval/cots_2' + cots_path)
 id = cots_path
 
@@ -158,6 +158,9 @@ print("Final Product Ranking\n")
 i = 0
 for final_product in prodScores:
     object_class = rcnn.getClassNameByObject(final_product[1])
-    print("Rank", i, ": [", final_product[0], "]", object_class, " clicks:",
-          final_product[3], " sal_score:", final_product[2])
+    cv2.imshow("Rank " + str(i), sr.getRoiWithIndex(final_product[0], imgT))
+    print("ProdRank", final_product[4], ": [", final_product[0], "]", object_class, "\t clicks:",
+          final_product[3], ":", i, " sal_score:", final_product[2])
     i += 1
+cv2.waitKey(0)
+cv2.destroyAllWindows()
