@@ -27,9 +27,9 @@ ap.add_argument("-i", "--image", required=False, default="images\\3_books.jpeg",
                 help="path to input image")
 ap.add_argument("-r", "--rank", required=False, default=-1,
                 help="which saliency object rank to show"),
-ap.add_argument("-g", "--gaussian", type=str2bool, required=False, default="True",
+ap.add_argument("-g", "--gaussian", type=str2bool, required=False, default="False",
                 help="factor in gaussian map on saliency score")
-ap.add_argument("-m", "--mask", type=str2bool, required=False, default="True",
+ap.add_argument("-m", "--mask", type=str2bool, required=False, default="False",
                 help="factor in gaussian map on saliency score")
 args = vars(ap.parse_args())
 
@@ -69,13 +69,14 @@ print("Image:\t", IMAGE_DIR)
 print("Gaussian:\t", psrm.GAUSSIAN)
 print("Mask:\t", psrm.MASK)
 
-# objectRanked = psr.returnObjects(img, RANK_TO_SHOW, results, GAUSSIAN)
+# objectRanked = psr.returnObjects(img, RANK_TO_SHOW, results, True)
 objectRanked = psrm.returnObjects(img, RANK_TO_SHOW, results)
 
 i = 0
 for ranked_object in objectRanked:
     object_class = rcnn.getClassNameByObject(ranked_object[1])
-    print("Rank ", ranked_object[3], ": ", object_class, " with a saliency score ", ranked_object[2])
+    print("Rank ", ranked_object[3], ": ", object_class, "saliency score ", ranked_object[2], " gaussian score ", ranked_object[4])
+    # print("Rank ", ranked_object[3], ": ", object_class, "saliency score ", ranked_object[2])
     i += 1
 
 print("Time took: ", time.process_time() - start)

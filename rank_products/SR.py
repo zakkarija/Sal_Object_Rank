@@ -310,7 +310,7 @@ def show_ranked_objects(rankedObjs, img):
         ranked_object_coords = ranked_object[1][1][0]
         ranked_object_img = img[ranked_object_coords[0]:ranked_object_coords[2],
                             ranked_object_coords[1]: ranked_object_coords[3]]
-        img_caption = "Rank {}".format(i)
+        img_caption = "Rank {} : {}".format(i, getClassName(ranked_object[1]))
         cv2.imshow(img_caption, ranked_object_img)
         i += 1
     cv2.waitKey(0)
@@ -365,7 +365,7 @@ def generateObjects(img, sal_map, rank_to_show, results, gaussian):
         final_objects.append(final_object)
         i += 1
 
-    # show_ranked_objects(final_objects, img)
+    show_ranked_objects(final_objects, img)
     return final_objects
 
 

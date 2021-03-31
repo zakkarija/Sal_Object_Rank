@@ -71,7 +71,7 @@ def detect_objects(image_path):
     image = skimage.io.imread(image_path)
 
     # Run detection
-    results = model.detect([image], verbose=1)
+    results = model.detect([image], verbose=2)
 
     # Visualize results
     r = results[0]

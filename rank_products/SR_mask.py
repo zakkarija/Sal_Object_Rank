@@ -149,7 +149,6 @@ def getGaussianWeight(coords, kernel, img):
 
 def calculateEntropy(img, w, dw):
     flt = img.flatten()
-    print("flt", flt)
 
     # c = flt.shape[0]
     # totalPixels = 0
@@ -174,7 +173,7 @@ def calculateEntropy(img, w, dw):
         entropy = entropy * wt * dw
 
     # print("Saliency Score:", entropy, " Gaussian weight:", wt)
-    return entropy
+    return entropy, wt
 
 
 # -------------------------------------------------
@@ -215,9 +214,9 @@ def rankProductsWithSaliency(objs, kernel, sal_map, img):
 
         if MASK:
             roi = obj[3][coords[0]:coords[2], coords[1]:coords[3]]
-            cv2.imshow("entropy roi", roi)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            # cv2.imshow("entropy roi", roi)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
         else:
             # coords[0] is x1 or y1??
             roi = sal_map[coords[0]:coords[2], coords[1]:coords[3]]
@@ -230,13 +229,13 @@ def rankProductsWithSaliency(objs, kernel, sal_map, img):
         if np.all((kernel == 0)):
             # calculateEntropy(sal_segment, gaussian weight, depth weight)
             # gaussian weight is 0.1 since it will be multiplied by 10
-            entropy = calculateEntropy(roi, 0.1, 1)
+            entropy, gaussian = calculateEntropy(roi, 0.1, 1)
         else:
             gaussian_weight = getGaussianWeight(coords, kernel, img)
-            entropy = calculateEntropy(roi, gaussian_weight, 1)
+            entropy, gaussian = calculateEntropy(roi, gaussian_weight, 1)
 
         # objectEntropies is list of  (index, entropy)
-        Tup = (i, entropy)
+        Tup = (i, entropy, gaussian)
         objectEntropies.append(Tup)
         # objects is list of (index, object)
         indexed_object = (i, obj)
@@ -329,8 +328,8 @@ def show_ranked_objects(rankedObjs, img):
 
         img_caption = "Rank {}".format(i)
         cv2.imshow(img_caption, ranked_object_img)
-        cv2.waitKey(0)
         i += 1
+    cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 
@@ -345,8 +344,8 @@ def getMasksImages(image, results):
     onlyObj = []
     i = 0
     mask = results["masks"]
-    print("mask.shape", mask.shape)
-    print("img.shape", image.shape)
+    # print("mask.shape", mask.shape)
+    # print("img.shape", image.shape)
     for i in range(mask.shape[2]):
         img = image
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -386,8 +385,11 @@ def generateObjects(img, sal_map, rank_to_show, results):
     else:
         maxObj, indexObj = rankProductsWithSaliency(objs, gaussian1d, sal_map, img)
 
-    dictObjEntropies = dict(objectEntropies)
-    sortedObjEntropies = sorted(dictObjEntropies.items(), key=operator.itemgetter(1), reverse=True)
+
+
+    # dictObjEntropies = dict(objectEntropies)
+    # sortedObjEntropies = sorted(dictObjEntropies.items(), key=operator.itemgetter(1), reverse=True)
+    objectEntropies.sort(key=operator.itemgetter(1), reverse=True)
 
     # print("\nChecking for duplicate objects...\n")
     # duplicateObjects(img)
@@ -395,7 +397,7 @@ def generateObjects(img, sal_map, rank_to_show, results):
     if rank_to_show == -1:
         salient_object = getObjectWithIndex(indexObj)
     else:
-        indexObj, salient_object = getObjectWithRank(rank_to_show, img, sortedObjEntropies)
+        indexObj, salient_object = getObjectWithRank(rank_to_show, img, objectEntropies)
 
     salient_object_roi = salient_object[1][0]
     salientObjectImg = img[salient_object_roi[0]:salient_object_roi[2],
@@ -410,8 +412,8 @@ def generateObjects(img, sal_map, rank_to_show, results):
     # (index, obj, entropy, rank)  -> obj is (roi, class_id, mask), ranked by entropies
     final_objects = []
     i = 0
-    for obj_entropies in sortedObjEntropies:
-        final_object = (obj_entropies[0], getObjectWithIndex(obj_entropies[0]), obj_entropies[1], i)
+    for obj_entropies in objectEntropies:
+        final_object = (obj_entropies[0], getObjectWithIndex(obj_entropies[0]), obj_entropies[1], i, obj_entropies[2])
         final_objects.append(final_object)
         i += 1
 
