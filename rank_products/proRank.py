@@ -1,8 +1,9 @@
 import argparse
 import cv2
-import SR as psr
-import SR_mask as psrm
 import time
+# import SR as pr
+# import SR_mask as pr
+import SR_sal as pr
 import mask_rcnn as rcnn
 
 
@@ -27,7 +28,7 @@ ap.add_argument("-i", "--image", required=False, default="images\\3_books.jpeg",
                 help="path to input image")
 ap.add_argument("-r", "--rank", required=False, default=-1,
                 help="which saliency object rank to show"),
-ap.add_argument("-g", "--gaussian", type=str2bool, required=False, default="False",
+ap.add_argument("-g", "--gaussian", type=str2bool, required=False, default="True",
                 help="factor in gaussian map on saliency score")
 ap.add_argument("-m", "--mask", type=str2bool, required=False, default="False",
                 help="factor in gaussian map on saliency score")
@@ -36,8 +37,8 @@ args = vars(ap.parse_args())
 # Convert arguments to variables
 IMAGE_DIR = args["image"]
 RANK_TO_SHOW = args["rank"]
-psrm.GAUSSIAN = args["gaussian"]
-psrm.MASK = args["mask"]
+pr.GAUSSIAN = args["gaussian"]
+pr.MASK = args["mask"]
 
 # -------------------------------------------------
 # Start Main Code
@@ -66,11 +67,12 @@ ids = results['class_ids']
 
 print("Showing Rank:\t", RANK_TO_SHOW)
 print("Image:\t", IMAGE_DIR)
-print("Gaussian:\t", psrm.GAUSSIAN)
-print("Mask:\t", psrm.MASK)
+print("Gaussian:\t", pr.GAUSSIAN)
+print("Mask:\t", pr.MASK)
 
-# objectRanked = psr.returnObjects(img, RANK_TO_SHOW, results, True)
-objectRanked = psrm.returnObjects(img, RANK_TO_SHOW, results)
+# objectRanked = pr.returnObjects(img, RANK_TO_SHOW, results, True)
+# objectRanked = pr.returnObjects(img, RANK_TO_SHOW, results)
+objectRanked = pr.returnObjects(img, RANK_TO_SHOW, results)
 
 i = 0
 for ranked_object in objectRanked:
