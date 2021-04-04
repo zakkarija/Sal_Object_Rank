@@ -16,7 +16,7 @@ objectEntropies = []
 indexed_objects = []
 
 GAUSSIAN = True
-MASK = True
+MASK = False
 
 # -------------------------------------------------
 # Class Names: Class's index in  list is its ID.

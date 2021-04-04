@@ -8,7 +8,7 @@ import pandas as pd
 from IPython.display import display, HTML
 
 import mask_rcnn as rcnn
-import SR as sr
+import SR_sal as sr
 
 segmentsScores = []
 segmentsCoords = []
@@ -70,6 +70,15 @@ def getObjectIndex(x, y, products):
     return -1
 
 
+def getObjectsIndex(x, y, products):
+    objects_in_point = []
+    for final_object in products:
+        object_roi = final_object[1][1][0]
+        if point_in_roi(x, y, object_roi):
+            objects_in_point.append(final_object)
+    return objects_in_point
+
+
 def getScaledCoordinates(img, inMaxX, inMaxY, tempX, tempY):
     "scales the coordinate in the csv file to match the size of the input img"
 
@@ -109,18 +118,19 @@ def rankProductsFromCSV(csvName, task, img, products):
         tempY = int(chunks[1].strip(',()'))
 
         # 299,255 are the dimensions used in the experiment represented in csv.
-        X, Y = getScaledCoordinates(imgT, 300, 180, tempX, tempY)
+        X, Y = getScaledCoordinates(imgT, 300, 170, tempX, tempY)
         # print(tempX, tempY, "scaled to", X, Y)
 
         # Get Index of Object present at that point
-        tempObj = getObjectIndex(X, Y, products)
+        tempObjs = getObjectsIndex(X, Y, products)
 
-        if tempObj != -1:
-            tempObjIndex = int(tempObj[0])
-            # print("Object with index:", tempObjIndex)
-            objectScores[tempObjIndex] = objectScores[tempObjIndex] + 1
+        if len(tempObjs) != 0:
+            for tempObj in tempObjs:
+                tempObjIndex = int(tempObj[0])
+                print("Object with index:", tempObjIndex)
+                objectScores[tempObjIndex] = objectScores[tempObjIndex] + 1
         else:
-            # print("Point (", X, ",", Y, ") not in any object")
+            print("Point (", X, ",", Y, ") not in any object")
             wasted_click += 1
 
     print("Clicks on no products:", wasted_click, "out of", total_clicks)
@@ -138,7 +148,9 @@ cots_path = '/souvenirs_no/3_colour.jpeg'
 imgT = cv2.imread('eval/cots_2' + cots_path)
 id = cots_path
 
-objects = sr.returnObjects(imgT, -1, rcnn.detect_objects('eval/cots_2' + cots_path), True)
+sr.GAUSSIAN = True
+sr.MASK = False
+objects = sr.returnObjects(imgT, -1, rcnn.detect_objects('eval/cots_2' + cots_path))
 
 objectScores = []
 objectScores = zerolistmaker(len(objects))
@@ -159,7 +171,7 @@ i = 0
 for final_product in prodScores:
     object_class = rcnn.getClassNameByObject(final_product[1])
     cv2.imshow("Rank " + str(i), sr.getRoiWithIndex(final_product[0], imgT))
-    print("ProdRank", final_product[4], ": [", final_product[0], "]", object_class, "\t clicks:",
+    print("ProdRank", final_product[4], ": index [", final_product[0], "]", object_class, "\t clicks:",
           final_product[3], ":", i, " sal_score:", final_product[2])
     i += 1
 cv2.waitKey(0)

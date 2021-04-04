@@ -17,7 +17,7 @@ objectEntropies = []
 indexed_objects = []
 
 GAUSSIAN = True
-MASK = True
+MASK = False
 
 # -------------------------------------------------
 # Class Names: Class's index in  list is its ID.
@@ -156,8 +156,7 @@ def calculateEntropy(img, w, dw):
     # tprob = 0
     # sumOfProbs = 0
     entropy = 0
-    # wt = w * 10
-    wt = w * 1
+    wt = w * 10
 
     # if imgD=None then proceed normally
     # else calculate its frequency and find max
@@ -331,8 +330,8 @@ def show_ranked_objects(rankedObjs, img):
         img_caption = "Rank {}".format(i)
         cv2.imshow(img_caption, ranked_object_img)
         i += 1
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
 
 def getImageFromMaskList(image, mask, i):
@@ -417,7 +416,7 @@ def generateObjects(img, sal_map, rank_to_show, results):
         final_objects.append(final_object)
         i += 1
 
-    show_ranked_objects(final_objects, img)
+    # show_ranked_objects(final_objects, img)
     return final_objects
 
 
@@ -425,13 +424,13 @@ def returnObjects(input_img, rank_to_show, results):
     generateSegments(input_img, 9)
 
     # Itti Salinecy Map
-    # sal_map = returnIttiSaliency(input_img)
+    sal_map = returnIttiSaliency(input_img)
 
     # Spectral Residual Saliency Map
     # sal_map = saliency_models.SpectralResidualSaliency(input_img)
 
     # Boolean Map Saliency Map
-    sal_map = saliency_models.bms(input_img)
+    # sal_map = saliency_models.bms(input_img)
     print("\n\n\n\nComputed Saliency Map\n\n\n\n")
 
     rankedObjs = generateObjects(input_img, sal_map, rank_to_show, results)
