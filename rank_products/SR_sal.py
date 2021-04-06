@@ -18,6 +18,7 @@ indexed_objects = []
 
 GAUSSIAN = True
 MASK = False
+SAL_TYPE = "itti"
 
 # -------------------------------------------------
 # Class Names: Class's index in  list is its ID.
@@ -420,17 +421,21 @@ def generateObjects(img, sal_map, rank_to_show, results):
     return final_objects
 
 
+def computeSaliencyMap(img):
+    if SAL_TYPE == "itti":
+        return returnIttiSaliency(img)
+    elif SAL_TYPE == "sr":
+        return saliency_models.SpectralResidualSaliency(img)
+    elif SAL_TYPE == "bms":
+        return saliency_models.bms(img)
+
+
 def returnObjects(input_img, rank_to_show, results):
     generateSegments(input_img, 9)
 
-    # Itti Salinecy Map
-    sal_map = returnIttiSaliency(input_img)
-
-    # Spectral Residual Saliency Map
-    # sal_map = saliency_models.SpectralResidualSaliency(input_img)
-
-    # Boolean Map Saliency Map
-    # sal_map = saliency_models.bms(input_img)
+    sal_map = computeSaliencyMap(input_img)
+    cv2.imshow("sal_map", sal_map)
+    cv2.waitKey(0)
     print("\n\n\n\nComputed Saliency Map\n\n\n\n")
 
     rankedObjs = generateObjects(input_img, sal_map, rank_to_show, results)

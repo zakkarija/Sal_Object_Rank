@@ -127,7 +127,7 @@ def rankProductsFromCSV(csvName, task, img, products):
         if len(tempObjs) != 0:
             for tempObj in tempObjs:
                 tempObjIndex = int(tempObj[0])
-                print("Object with index:", tempObjIndex)
+                # print("Object with index:", tempObjIndex)
                 objectScores[tempObjIndex] = objectScores[tempObjIndex] + 1
         else:
             print("Point (", X, ",", Y, ") not in any object")
@@ -144,7 +144,7 @@ def rankProductsFromCSV(csvName, task, img, products):
 
 
 # imgT, imgD, imgS, name, id = loadImages(2)
-cots_path = '/souvenirs_no/3_colour.jpeg'
+cots_path = '/tech_no/3_colour.jpeg'
 imgT = cv2.imread('eval/cots_2' + cots_path)
 id = cots_path
 
@@ -170,7 +170,7 @@ print("Final Product Ranking\n")
 i = 0
 for final_product in prodScores:
     object_class = rcnn.getClassNameByObject(final_product[1])
-    cv2.imshow("Rank " + str(i), sr.getRoiWithIndex(final_product[0], imgT))
+    # cv2.imshow("Rank " + str(i), sr.getRoiWithIndex(final_product[0], imgT))
     print("ProdRank", final_product[4], ": index [", final_product[0], "]", object_class, "\t clicks:",
           final_product[3], ":", i, " sal_score:", final_product[2])
     i += 1
