@@ -310,8 +310,8 @@ def duplicateObjects(img):
                 print("\n\n")
             else:
                 print("No Match Found\n\n")
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
+                # cv2.waitKey(0)
+                # cv2.destroyAllWindows()
                 # print("No Match found between", getClassName(getObjectWithIndex(objA[0])),
                 #       " and", getClassName(getObjectWithIndex(objB[0])))
 
@@ -330,6 +330,25 @@ def show_ranked_objects(rankedObjs, img):
 
         img_caption = "Rank {}".format(i)
         cv2.imshow(img_caption, ranked_object_img)
+        i += 1
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+
+def show_ranked_objects_image(rankedObjs, img):
+    i = 0
+    result_img = img
+    for ranked_object in rankedObjs:
+        # c is ranked_objs_coords
+        c = ranked_object[1][1][0]
+        # (img, (x1,y1),(x2,y2))
+        cv2.rectangle(result_img, (c[1], c[0]), (c[3], c[2]), (255, 0, 0), 2)
+        cv2.putText(result_img, str(i), (c[1], c[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
+        ranked_object_img = img[c[0]:c[2],
+                            c[1]: c[3]]
+        img_caption = "Rank {}".format(i)
+        cv2.imshow(img_caption, ranked_object_img)
+        cv2.imshow("result_img", result_img)
         i += 1
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
@@ -417,7 +436,8 @@ def generateObjects(img, sal_map, rank_to_show, results):
         final_objects.append(final_object)
         i += 1
 
-    # show_ranked_objects(final_objects, img)
+    show_ranked_objects(final_objects, img)
+    # show_ranked_objects_image(final_objects, img)
     return final_objects
 
 
@@ -430,12 +450,18 @@ def computeSaliencyMap(img):
         return saliency_models.bms(img)
 
 
+def clear_vars():
+    indexed_objects.clear()
+    segments.clear()
+    segmentsCoords.clear()
+    objectEntropies.clear()
+
+
 def returnObjects(input_img, rank_to_show, results):
+    clear_vars()
     generateSegments(input_img, 9)
 
     sal_map = computeSaliencyMap(input_img)
-    cv2.imshow("sal_map", sal_map)
-    cv2.waitKey(0)
     print("\n\n\n\nComputed Saliency Map\n\n\n\n")
 
     rankedObjs = generateObjects(input_img, sal_map, rank_to_show, results)

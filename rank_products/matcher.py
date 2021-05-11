@@ -38,10 +38,30 @@ def feature_match(c1, c2):
         dst = cv2.perspectiveTransform(pts, M)
         c2 = cv2.polylines(c2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
         print("Matches")
+
+        # To Show Matches
+        draw_params = dict(matchColor=(0, 255, 0),  # draw matches in green color
+                           singlePointColor=None,
+                           matchesMask=matchesMask,  # draw only inliers
+                           flags=2)
+        img3 = cv2.drawMatches(c1, kp1, c2, kp2, good, None, **draw_params)
+        # plt.imshow(img3, 'gray'), plt.show()
+        cv2.imshow("img3", img3)
+
         return True
     else:
         print("Not enough matches are found - {}/{}".format(len(good), MIN_MATCH_COUNT))
-        # matchesMask = None
+        matchesMask = None
+
+        # To Show Matches
+        draw_params = dict(matchColor=(0, 255, 0),  # draw matches in green color
+                           singlePointColor=None,
+                           matchesMask=matchesMask,  # draw only inliers
+                           flags=2)
+        img3 = cv2.drawMatches(c1, kp1, c2, kp2, good, None, **draw_params)
+        # plt.imshow(img3, 'gray'), plt.show()
+        # cv2.imshow("img3", img3)
+
         return False
 
 

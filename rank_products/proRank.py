@@ -15,11 +15,11 @@ ap.add_argument("-i", "--image", required=False, default="images\\3_books.jpeg",
                 help="path to input image")
 ap.add_argument("-r", "--rank", required=False, default=-1,
                 help="which saliency object rank to show"),
-ap.add_argument("-g", "--gaussian", type=util.str2bool, required=False, default="True",
+ap.add_argument("-g", "--gaussian", type=util.str2bool, required=False, default="False",
                 help="factor in gaussian map on saliency score")
 ap.add_argument("-m", "--mask", type=util.str2bool, required=False, default="False",
                 help="factor in gaussian map on saliency score")
-ap.add_argument("-s", "--sal", type=util.sal_map_ver, required=False, default="Itti",
+ap.add_argument("-s", "--sal", type=util.sal_map_ver, required=False, default="sr",
                 help="Type of saliency map excepted")
 args = vars(ap.parse_args())
 

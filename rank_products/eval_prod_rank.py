@@ -144,7 +144,7 @@ def rankProductsFromCSV(csvName, task, img, products):
 
 
 # imgT, imgD, imgS, name, id = loadImages(2)
-cots_path = '/tech_no/3_colour.jpeg'
+cots_path = '/reading_no/2_colour.jpeg'
 imgT = cv2.imread('eval/cots_2' + cots_path)
 id = cots_path
 

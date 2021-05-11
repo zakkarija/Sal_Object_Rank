@@ -1,0 +1,89 @@
+Ranking: images\2_reading.jpeg
+
+Rank 0: book saliency score: 5.60272134071789e+69 gaussian score: 1.0
+Rank 1: book saliency score: 7.261308216768289e+67 gaussian score: 1.0
+
+
+Ranking: images\3_books.jpeg
+
+Rank 0: book saliency score: 1.5693839957080796e+71 gaussian score: 1.0
+Rank 1: book saliency score: 1.1395578446329456e+62 gaussian score: 1.0
+Rank 2: book saliency score: 3.832917476311187e+60 gaussian score: 1.0
+
+
+Ranking: images\3_hats.jpeg
+
+Rank 0: hat saliency score: 1.788229665711619e+71 gaussian score: 1.0
+Rank 1: hat saliency score: 3.576682835715105e+68 gaussian score: 1.0
+Rank 2: hat saliency score: 2.7748839563549086e+47 gaussian score: 1.0
+
+
+Ranking: images\3_lpbooks.jpeg
+
+Rank 0: book saliency score: 1.9650756898004128e+70 gaussian score: 1.0
+Rank 1: book saliency score: 7.108351677687831e+66 gaussian score: 1.0
+Rank 2: book saliency score: 5.309748612798935e+43 gaussian score: 1.0
+
+
+Ranking: images\3_mugs.jpeg
+
+Rank 0: mug saliency score: 2.7144199362324414e+69 gaussian score: 1.0
+Rank 1: mug saliency score: 8.62193976509758e+34 gaussian score: 1.0
+Rank 2: mug saliency score: 5.328637649750931e+34 gaussian score: 1.0
+
+
+Ranking: images\3_shoes.jpeg
+
+Rank 0: shoe saliency score: 1.0831984473519368e+70 gaussian score: 1.0
+Rank 1: shoe saliency score: 4.184663421924797e+59 gaussian score: 1.0
+Rank 2: shoe saliency score: 1.2085982432363199e+39 gaussian score: 1.0
+
+
+Ranking: images\3_shooters.jpeg
+
+Rank 0: shooter saliency score: 1.0056107037707634e+68 gaussian score: 1.0
+Rank 1: shooter saliency score: 2.490129389642347e+39 gaussian score: 1.0
+Rank 2: shooter saliency score: 2.363595866826349e+28 gaussian score: 1.0
+
+
+Ranking: images\3_statues.jpeg
+
+Rank 0: statue saliency score: 1.6601942207050146e+71 gaussian score: 1.0
+Rank 1: statue saliency score: 2.9570371151476396e+70 gaussian score: 1.0
+Rank 2: statue saliency score: 1.159204033175414e+61 gaussian score: 1.0
+
+
+Ranking: images\3_tech.jpeg
+
+Rank 0: camera saliency score: 4.198442174863281e+69 gaussian score: 1.0
+Rank 1: laptop saliency score: 9.0193725847101e+65 gaussian score: 1.0
+Rank 2: headphones saliency score: 1.3668088114450619e+45 gaussian score: 1.0
+
+
+Ranking: images\3_vr.jpeg
+
+Rank 0: vr saliency score: 1.745225385392937e+52 gaussian score: 1.0
+Rank 1: vr saliency score: 2.6986554674350716e+48 gaussian score: 1.0
+
+
+Ranking: images\3_wash.jpeg
+
+Rank 0: bottle saliency score: 3.2172082863268723e+65 gaussian score: 1.0
+Rank 1: bottle saliency score: 5.938325297349937e+63 gaussian score: 1.0
+Rank 2: bottle saliency score: 2.576804287032302e+51 gaussian score: 1.0
+
+
+Ranking: images\food_3.jpeg
+
+Rank 0: bowl saliency score: 1.165634438381918e+67 gaussian score: 1.0
+Rank 1: tagine saliency score: 2.0634209183567647e+62 gaussian score: 1.0
+Rank 2: tagine saliency score: 2.6802350464710196e+37 gaussian score: 1.0
+
+
+Ranking: images\sal.jpeg
+
+Rank 0: elephant saliency score: 2.075755633704369e+71 gaussian score: 1.0
+Rank 1: souvenir saliency score: 1.6570129048103285e+61 gaussian score: 1.0
+Rank 2: painting saliency score: 1.0829100051012601e+50 gaussian score: 1.0
+
+
