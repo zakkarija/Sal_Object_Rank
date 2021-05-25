@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import pyimgsaliency as psal
 # system imports
 import timeit
 
@@ -132,3 +133,15 @@ def bms(img):
 
     # compute saliency
     return compute_saliency(img)
+
+
+def mbd(img_path):
+    return psal.get_saliency_mbd(img_path).astype('uint8')
+
+
+def rbd(img_path):
+    return psal.get_saliency_rbd(img_path).astype('uint8')
+
+
+def ft(img_path):
+    return psal.get_saliency_ft(img_path).astype('uint8')

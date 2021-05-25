@@ -1,4 +1,5 @@
 import argparse
+import cv2
 
 
 def str2bool(v):
@@ -19,5 +20,11 @@ def sal_map_ver(v):
         return "sr"
     elif v.lower().replace(" ", "") in ('bms', 'boolean', 'booleanmap', 'zhang'):
         return "bms"
+    elif v.lower().replace(" ", "") in ('mbd', 'MBD'):
+        return "mbd"
+    elif v.lower().replace(" ", "") in ('rbd', 'RDB'):
+        return "rbd"
+    elif v.lower().replace(" ", "") in ('ft', 'FT'):
+        return "ft"
     else:
-        raise argparse.ArgumentTypeError('Incorrect value entered. Slaincy map options are: "itti", "sr", "bms"')
+        raise argparse.ArgumentTypeError('Incorrect value entered. Saliency map options are: "itti", "sr", "bms"')

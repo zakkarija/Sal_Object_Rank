@@ -22,7 +22,7 @@ ap.add_argument("-g", "--gaussian", type=util.str2bool, required=False, default=
                 help="factor in gaussian map on saliency score")
 ap.add_argument("-m", "--mask", type=util.str2bool, required=False, default="False",
                 help="factor in gaussian map on saliency score")
-ap.add_argument("-s", "--sal", type=util.sal_map_ver, required=False, default="sr",
+ap.add_argument("-s", "--sal", type=util.sal_map_ver, required=False, default="Itti",
                 help="Type of saliency map excepted")
 ap.add_argument("-o", "--output", required=False, default="output.txt",
                 help="Directory of product list output text file\n"

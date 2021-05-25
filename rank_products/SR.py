@@ -1,6 +1,7 @@
 import itertools
 
 import cv2
+import skimage as sk
 import numpy as np
 import math
 import operator
@@ -157,7 +158,7 @@ def calculateEntropy(img, w, dw):
     # tprob = 0
     # sumOfProbs = 0
     entropy = 0
-    wt = w * 10
+    wt = w * 5
 
     # if imgD=None then proceed normally
     # else calculate its frequency and find max
@@ -436,13 +437,31 @@ def generateObjects(img, sal_map, rank_to_show, results):
     return final_objects
 
 
-def computeSaliencyMap(img):
+def computeSaliencyMap(img, img_path):
     if SAL_TYPE == "itti":
         return returnIttiSaliency(img)
     elif SAL_TYPE == "sr":
         return saliency_models.SpectralResidualSaliency(img)
     elif SAL_TYPE == "bms":
         return saliency_models.bms(img)
+    elif SAL_TYPE == "mbd":
+        return saliency_models.mbd(img_path)
+    elif SAL_TYPE == "rbd":
+        return saliency_models.rbd(img_path)
+    elif SAL_TYPE == "ft":
+        return saliency_models.ft(img_path)
+
+
+def returnObjects(input_img, rank_to_show, results, image_sk):
+    clear_vars()
+    generateSegments(input_img, 9)
+
+    sal_map = computeSaliencyMap(input_img, image_sk)
+    # show_sal_map(sal_map)
+    print("\nComputed Saliency Map\n\n\n\n")
+
+    rankedObjs = generateObjects(input_img, sal_map, rank_to_show, results)
+    return rankedObjs
 
 
 def clear_vars():
@@ -452,12 +471,9 @@ def clear_vars():
     objectEntropies.clear()
 
 
-def returnObjects(input_img, rank_to_show, results):
-    clear_vars()
-    generateSegments(input_img, 9)
-
-    sal_map = computeSaliencyMap(input_img)
-    print("\nComputed Saliency Map\n\n\n\n")
-
-    rankedObjs = generateObjects(input_img, sal_map, rank_to_show, results)
-    return rankedObjs
+def show_sal_map(sal_map):
+    print("sal_map", sal_map)
+    cv_image = sk.img_as_ubyte(sal_map)
+    cv2.imshow("sal_map", cv_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()

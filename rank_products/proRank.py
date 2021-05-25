@@ -1,7 +1,11 @@
 import argparse
 import cv2
 import time
-import SR_sal as pr
+
+import skimage
+import skimage.io
+
+import SR as pr
 import mask_rcnn as rcnn
 import prUtils as util
 
@@ -15,11 +19,11 @@ ap.add_argument("-i", "--image", required=False, default="images\\3_books.jpeg",
                 help="path to input image")
 ap.add_argument("-r", "--rank", required=False, default=-1,
                 help="which saliency object rank to show"),
-ap.add_argument("-g", "--gaussian", type=util.str2bool, required=False, default="False",
+ap.add_argument("-g", "--gaussian", type=util.str2bool, required=False, default="True",
                 help="factor in gaussian map on saliency score")
 ap.add_argument("-m", "--mask", type=util.str2bool, required=False, default="False",
                 help="factor in gaussian map on saliency score")
-ap.add_argument("-s", "--sal", type=util.sal_map_ver, required=False, default="sr",
+ap.add_argument("-s", "--sal", type=util.sal_map_ver, required=False, default="mbd",
                 help="Type of saliency map excepted")
 args = vars(ap.parse_args())
 
@@ -36,6 +40,7 @@ pr.SAL_TYPE = args["sal"]
 start = time.process_time()
 
 img = cv2.imread(IMAGE_DIR)
+image_sk = skimage.io.imread(IMAGE_DIR)
 
 # Get List of Products ROIs using Mask R-CNN
 results = rcnn.detect_objects(IMAGE_DIR)
@@ -61,7 +66,8 @@ print("Gaussian:\t", pr.GAUSSIAN)
 print("Mask:\t", pr.MASK)
 print("Saliency Map:\t", pr.SAL_TYPE)
 
-objectRanked = pr.returnObjects(img, RANK_TO_SHOW, results)
+
+objectRanked = pr.returnObjects(img, RANK_TO_SHOW, results, image_sk)
 
 i = 0
 for ranked_object in objectRanked:
