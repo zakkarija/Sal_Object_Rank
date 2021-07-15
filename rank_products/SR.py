@@ -158,7 +158,7 @@ def calculateEntropy(img, w, dw):
     # tprob = 0
     # sumOfProbs = 0
     entropy = 0
-    wt = w * 5
+    wt = w * 10
 
     # if imgD=None then proceed normally
     # else calculate its frequency and find max
@@ -217,9 +217,6 @@ def rankProductsWithSaliency(objs, kernel, sal_map, img):
 
         if MASK:
             roi = obj[3][coords[0]:coords[2], coords[1]:coords[3]]
-            # cv2.imshow("entropy roi", roi)
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
         else:
             # coords[0] is x1 or y1??
             roi = sal_map[coords[0]:coords[2], coords[1]:coords[3]]
@@ -299,15 +296,15 @@ def duplicateObjects(img):
                 # print("indexed_objects", indexed_objects)
                 # Instead of removing the object (Combine their averaged entropy)
                 # indexed_objects.pop(objA[0])
-                for obj_ent in objectEntropies:
-                    if obj_ent[0] == objA[0]:
-                        objectEntropies.remove(obj_ent)
+                # for obj_ent in objectEntropies:
+                #     if obj_ent[0] == objA[0]:
+                #         objectEntropies.remove(obj_ent)
                 # print("indexed_objects After pop", indexed_objects)
 
-                # cv2.imshow("Object Matches1", match1)
-                # cv2.imshow("Object Matches2", match2)
-                # cv2.waitKey(0)
-                # cv2.destroyAllWindows()
+                cv2.imshow("Object Matches1", match1)
+                cv2.imshow("Object Matches2", match2)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
                 print("\n\n")
             else:
                 print("No Match Found\n\n")
@@ -336,7 +333,13 @@ def show_ranked_objects(rankedObjs, img):
     # cv2.destroyAllWindows()
 
 
-def show_ranked_objects_image(rankedObjs, img):
+def show_ranked_objects_image(result_img):
+    cv2.imshow("result_img", result_img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+
+def get_ranked_img(rankedObjs, img):
     i = 0
     result_img = img
     for ranked_object in rankedObjs:
@@ -344,10 +347,8 @@ def show_ranked_objects_image(rankedObjs, img):
         c = ranked_object[1][1][0]
         cv2.rectangle(result_img, (c[1], c[0]), (c[3], c[2]), (255, 0, 0), 2)
         cv2.putText(result_img, str(i), (c[1], c[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
-        cv2.imshow("result_img", result_img)
         i += 1
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    return img
 
 
 def getImageFromMaskList(image, mask, i):
@@ -433,8 +434,8 @@ def generateObjects(img, sal_map, rank_to_show, results):
         i += 1
 
     # show_ranked_objects(final_objects, img)
-    show_ranked_objects_image(final_objects, img)
-    return final_objects
+    # show_ranked_objects_image(get_ranked_img(final_objects, img))
+    return final_objects, get_ranked_img(final_objects, img)
 
 
 def computeSaliencyMap(img, img_path):
@@ -450,6 +451,9 @@ def computeSaliencyMap(img, img_path):
         return saliency_models.rbd(img_path)
     elif SAL_TYPE == "ft":
         return saliency_models.ft(img_path)
+    elif SAL_TYPE == "msi":
+        print("MSI Sal")
+        return saliency_models.con(img_path)
 
 
 def returnObjects(input_img, rank_to_show, results, image_sk):
@@ -457,11 +461,12 @@ def returnObjects(input_img, rank_to_show, results, image_sk):
     generateSegments(input_img, 9)
 
     sal_map = computeSaliencyMap(input_img, image_sk)
-    # show_sal_map(sal_map)
+
+    # sal_map = cv2.imread("SM/2_reading.jpeg")
+    show_sal_map(sal_map)
     print("\nComputed Saliency Map\n\n\n\n")
 
-    rankedObjs = generateObjects(input_img, sal_map, rank_to_show, results)
-    return rankedObjs
+    return generateObjects(input_img, sal_map, rank_to_show, results)
 
 
 def clear_vars():
@@ -472,8 +477,8 @@ def clear_vars():
 
 
 def show_sal_map(sal_map):
-    print("sal_map", sal_map)
-    cv_image = sk.img_as_ubyte(sal_map)
-    cv2.imshow("sal_map", cv_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    if SAL_TYPE == "mbd" or "rbd" or "ft":
+        sal_map = sk.img_as_ubyte(sal_map)
+    cv2.imshow("sal_map", sal_map)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
