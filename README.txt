@@ -1,4 +1,4 @@
-#Saliency directed product placement (B.Sc Dissertation)
+# Saliency directed product placement (B.Sc Dissertation)
 
 in Sal_Object_Rank\rank_products:
 python proRank.py -i=images\sal.jpeg
